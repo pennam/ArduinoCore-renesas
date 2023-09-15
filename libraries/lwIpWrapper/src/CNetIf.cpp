@@ -275,7 +275,7 @@ void CLwipIf::ethFrameRx()
     /* -------------------------------------------------------------------------- */
 
     if (pending_eth_rx) {
-        pending_eth_rx = false;
+        //pending_eth_rx = false;
         volatile uint32_t rx_frame_dim = 0;
         volatile uint8_t* rx_frame_buf = eth_input(&rx_frame_dim);
         if (rx_frame_dim > 0 && rx_frame_buf != nullptr) {
@@ -288,8 +288,10 @@ void CLwipIf::ethFrameRx()
                 pbuf_take((struct pbuf*)p, (uint8_t*)rx_frame_buf, (uint32_t)rx_frame_dim);
                 eth_release_rx_buffer();
                 eth_queue.push((struct pbuf*)p);
+                pending_eth_rx = false;
             }
         }
+        
     }
 }
 
