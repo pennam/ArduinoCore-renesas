@@ -149,6 +149,9 @@ int mbedtls_ecdsa_sign(mbedtls_ecp_group *grp,
                        (buffer[rawPrivatekeylen - sizeof(magic_bytes) - 2 - 2] << (8 * 1)) +
                        (buffer[rawPrivatekeylen - sizeof(magic_bytes) - 2 - 1] << (8 * 0)));
 
+    /* KeyId 100 is used for ArduinoIoTCloud authentication and needs SHA384 */
+    SE05x_ECSignatureAlgo_t ecSignAlgo = ( keyID == 100 ) ? kSE05x_ECSignatureAlgo_SHA_384 : kSE05x_ECSignatureAlgo_SHA_256;
+
     status = se05x_open_session();
     if (status != SM_OK) {
         SMLOG_E("Failed to initialize SE05x session\r\n");
@@ -168,7 +171,7 @@ int mbedtls_ecdsa_sign(mbedtls_ecp_group *grp,
 
     SMLOG_I("Using SE05x for ecdsa sign. blen: %d\r\n", blen);
     status = Se05x_API_ECDSASign(
-        pSession, keyID, kSE05x_ECSignatureAlgo_SHA_384, (uint8_t *)buf, blen, signature, &signature_len);
+        pSession, keyID, ecSignAlgo, (uint8_t *)buf, blen, signature, &signature_len);
     if (status != SM_OK) {
         SMLOG_E("Error in Se05x_API_ECDSASign\r\n");
         return -1;
