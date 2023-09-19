@@ -349,21 +349,13 @@ bool SSLClient::loadPrivateKey(Stream& stream, size_t size) {
   return ret;
 }
 
-void SSLClient::setEccSlot(int KeySlot, const byte cert[], int certLen) {
+void SSLClient::setEccSlot(int KeySlot, const char cert[]) {
     unsigned char buf[1024];
     size_t olen;
     int ret;
 
-    if ((ret = mbedtls_pem_write_buffer("-----BEGIN CERTIFICATE-----\n",
-                                        "-----END CERTIFICATE-----\n",
-                                        cert, certLen,
-                                        &buf[0], sizeof(buf), &olen)) != 0) {
-        log_e("setEccSlot: client certificate error");
-    }
-
-    char *dest = (char*)malloc(olen+1);
-    memcpy(dest,buf,olen);
-    setCertificate(dest);
+    /* Store pointer to PEM certificate */
+    setCertificate(cert);
     log_d("%s", _cert);
 
     uint8_t key[121] = {
@@ -379,6 +371,7 @@ void SSLClient::setEccSlot(int KeySlot, const byte cert[], int certLen) {
 
     key[28] = KeySlot;
 
+    /* Create SE050 key PEM to select key slot */
     if ((ret = mbedtls_pem_write_buffer("-----BEGIN EC PRIVATE KEY-----\n",
                                         "-----END EC PRIVATE KEY-----\n",
                                         (const unsigned char *)key, 121,
@@ -386,10 +379,38 @@ void SSLClient::setEccSlot(int KeySlot, const byte cert[], int certLen) {
         log_e("setEccSlot: client key error");
     }
 
-    dest = (char*)malloc(olen+1);
-    memcpy(dest,buf,olen);
-    setPrivateKey(dest);
-    log_d("%s", _private_key);
+    /* Allocate memory for PEM key */
+    char *dest = (char*)malloc(olen+1);
+    if(dest != nullptr) {
+      memcpy(dest,buf,olen);
+      setPrivateKey(dest);
+      log_d("%s", _private_key);
+    } else {
+      log_e("setEccSlot key malloc error");
+    }
+}
+
+void SSLClient::setEccSlot(int KeySlot, const byte cert[], int certLen) {
+    unsigned char buf[1024];
+    size_t olen;
+    int ret;
+
+    /* Convert DER cert in PEM */
+    if ((ret = mbedtls_pem_write_buffer("-----BEGIN CERTIFICATE-----\n",
+                                        "-----END CERTIFICATE-----\n",
+                                        cert, certLen,
+                                        &buf[0], sizeof(buf), &olen)) != 0) {
+        log_e("setEccSlot: client certificate error");
+    }
+
+    /* Allocate memory for PEM certificate */
+    char *dest = (char*)malloc(olen+1);
+    if(dest != nullptr) {
+      memcpy(dest,buf,olen);
+      setEccSlot(KeySlot, dest);
+    } else {
+      log_e("setEccSlot certificate malloc error");
+    }
 }
 
 int SSLClient::lastError(char *buf, const size_t size)
