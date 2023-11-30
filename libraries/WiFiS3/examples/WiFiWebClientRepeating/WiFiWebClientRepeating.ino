@@ -65,8 +65,8 @@ void setup() {
     // Connect to WPA/WPA2 network. Change this line if using open or WEP network:
     status = WiFi.begin(ssid, pass);
 
-    // wait 10 seconds for connection:
-    //delay(10000);
+    // wait 3 seconds for connection:
+    delay(3000);
   }
   // you're connected now, so print out the status:
   printWifiStatus();
