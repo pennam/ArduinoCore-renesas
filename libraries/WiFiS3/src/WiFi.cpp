@@ -54,13 +54,7 @@ int CWifi::begin(const char* ssid, const char *passphrase) {
       }
    }
 
-   unsigned long start_time = millis();
-   while(millis() - start_time < 10000){
-      if(status() == WL_CONNECTED) {
-         return WL_CONNECTED;
-      } 
-   }
-  return WL_CONNECT_FAILED;
+  return status();
 }
 
 /* passphrase is needed so a default one will be set */
