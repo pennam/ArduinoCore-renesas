@@ -23,19 +23,18 @@
 
 #include <Udp.h>
 #include "Arduino.h"  
-#include "Arduino.h"  
 #include "IPAddress.h"
 
 #include "WiFiTypes.h"
 #include "Modem.h"
 #include "FifoBuffer.h"
 
-#define RX_BUFFER_DIM 1461
+#define RX_UDP_BUFFER_DIM 1461
 
 class WiFiUDP : public UDP {
 private:
   int _sock; 
-  FifoBuffer<uint8_t,RX_BUFFER_DIM> rx_buffer;
+  FifoBuffer<uint8_t,RX_UDP_BUFFER_DIM> rx_buffer;
 
 protected:
   virtual int _read();

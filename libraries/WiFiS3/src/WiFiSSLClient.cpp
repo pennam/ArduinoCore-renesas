@@ -5,7 +5,7 @@ using namespace std;
 /* -------------------------------------------------------------------------- */
 WiFiSSLClient::WiFiSSLClient() : _sock(-1) {
 /* -------------------------------------------------------------------------- */
-   rx_buffer = std::shared_ptr<FifoBuffer<uint8_t,RX_BUFFER_DIM>>(new FifoBuffer<uint8_t,RX_BUFFER_DIM>());
+   rx_buffer = std::shared_ptr<FifoBuffer<uint8_t,RX_CLIENT_BUFFER_DIM>>(new FifoBuffer<uint8_t,RX_CLIENT_BUFFER_DIM>());
 }
 
 /* -------------------------------------------------------------------------- */
