@@ -97,7 +97,7 @@ CLwipIf::CLwipIf()
     (
       timer_task_func,
       static_cast<const char*>("Timer Thread"),
-      512 / 4,     /* usStackDepth in words */
+      1024 / 4,     /* usStackDepth in words */
       nullptr,     /* pvParameters */
       3,           /* uxPriority */
       &timer_task /* pxCreatedTask */
