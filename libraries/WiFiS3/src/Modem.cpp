@@ -227,6 +227,18 @@ bool ModemClass::buf_read(const string &prompt, string &data_res) {
             }
          }
          else {
+            if(strstr(data_res.c_str(), prompt.c_str()) == nullptr &&
+              (string::npos != data_res.rfind(RESULT_DATA) ||
+               string::npos != data_res.rfind(RESULT_OK) ||
+               string::npos != data_res.rfind(RESULT_ERROR))) {
+               _serial_debug->print("Scarrucolamento: ");
+               _serial_debug->println(data_res.c_str());
+               _serial_debug->println(data_res.c_str());
+               data_res.clear();
+               continue;
+            }
+
+
             if(string::npos != data_res.rfind(RESULT_DATA)) {
                found = true;
                data_res = data_res.substr(0, data_res.length() - (sizeof(RESULT_DATA) - 1));
