@@ -18,6 +18,9 @@ bool CLwipIf::pending_eth_rx = false;
 
 FspTimer CLwipIf::timer;
 
+/* ICMP ping callback data structure */
+static recv_callback_data requestCbkData;
+
 static u8_t icmp_receive_callback(void *arg, struct raw_pcb *pcb, struct pbuf *p, const ip_addr_t *addr)
 {
     struct icmp_echo_hdr *iecho;
@@ -43,7 +46,6 @@ static u8_t icmp_receive_callback(void *arg, struct raw_pcb *pcb, struct pbuf *p
     request->endMillis = millis();
     pbuf_free(p);
     return 1; /* consume the packet */
-
 }
 
 ip_addr_t* u8_to_ip_addr(uint8_t* ipu8, ip_addr_t* ipaddr)
@@ -159,9 +161,12 @@ int CLwipIf::ping(IPAddress ip, uint8_t ttl)
     (void)ttl;
     ip_addr_t addr;
     addr.addr = ip;
-    recv_callback_data requestCbkData = { 0, 0, (uint16_t)random(0xffff) };
 
-    //Create a raw socket
+    /* initialize callback data for a new request */
+    memset(&requestCbkData, 0, sizeof(recv_callback_data));
+    requestCbkData.seqNum = (uint16_t)random(0xffff);
+
+    /* Create a raw socket */
     struct raw_pcb* s = raw_new(IP_PROTO_ICMP);
     if (!s) {
         return -1;
