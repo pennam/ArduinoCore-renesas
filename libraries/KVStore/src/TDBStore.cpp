@@ -129,7 +129,7 @@ TDBStore::TDBStore(BlockDevice *bd) : _ram_table(0), _max_keys(0),
     _area_params{}, _prog_size(0), _work_buf(0), _work_buf_size(0), _key_buf(0), _inc_set_handle(0)
 {
     for (int i = 0; i < _num_areas; i++) {
-        _area_params[i] = { 0 };
+        _area_params[i] = { 0, 0 };
     }
     for (int i = 0; i < _max_open_iterators; i++) {
         _iterator_table[i] = { 0 };
@@ -403,6 +403,7 @@ end:
 int TDBStore::find_record(uint8_t area, const char *key, uint32_t &offset,
                           uint32_t &ram_table_ind, uint32_t &hash)
 {
+    (void)area;
     ram_table_entry_t *ram_table = (ram_table_entry_t *) _ram_table;
     ram_table_entry_t *entry;
     int ret = KVSTORE_ERROR_ITEM_NOT_FOUND;
@@ -818,6 +819,7 @@ end:
 
 int TDBStore::write_master_record(uint8_t area, uint16_t version, uint32_t &next_offset)
 {
+    (void)area;
     master_record_data_t master_rec;
 
     master_rec.version = version;
@@ -1482,11 +1484,10 @@ int TDBStore::check_erase_before_write(uint8_t area, uint32_t offset, uint32_t s
     // In order to save init time, we don't check that the entire area is erased.
     // Instead, whenever reaching an erase unit start erase it.
     bool erase = false;
-    uint32_t start_offset;
-    uint32_t end_offset;
+    uint32_t start_offset = 0;
+    uint32_t end_offset = 0;
     while (size) {
         uint32_t dist, offset_from_start;
-        int ret;
         offset_in_erase_unit(area, offset, offset_from_start, dist);
         uint32_t chunk = std::min(size, dist);
 

@@ -75,6 +75,8 @@ constexpr bool have_crc_table(uint32_t polynomial, uint8_t width)
            (polynomial == POLY_8BIT_CCITT && width == 8) ||
            (polynomial == POLY_7BIT_SD && width == 7);
 #else
+    (void)polynomial;
+    (void)width;
     return false;
 #endif
 }
